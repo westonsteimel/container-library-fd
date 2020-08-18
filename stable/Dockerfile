@@ -1,11 +1,14 @@
-ARG GIT_TAG="v8.1.1"
-ARG FD_VERSION="${GIT_TAG}"
+ARG SOURCE
+ARG REVISION
+ARG CREATED
+ARG VERSION
+ARG GIT_REF="${VERSION}"
 
 FROM westonsteimel/rust-static-builder:stable as builder
 
-ARG GIT_TAG
+ARG GIT_REF
 
-RUN git clone --depth 1 --branch "${GIT_TAG}" https://github.com/sharkdp/fd /build/fd \
+RUN git clone --depth 1 --branch "${GIT_REF}" https://github.com/sharkdp/fd /build/fd \
     && cd /build/fd \
     && /home/builder/build.sh
 
@@ -16,7 +19,10 @@ RUN addgroup fd \
 
 FROM scratch
 
-ARG FD_VERSION
+ARG SOURCE
+ARG REVISION
+ARG CREATED
+ARG VERSION
 
 COPY --from=config /etc/passwd /etc/passwd
 COPY --from=builder /build/fd/target/x86_64-unknown-linux-musl/release/fd /usr/local/bin/fd
@@ -30,6 +36,8 @@ CMD ["--help"]
 
 LABEL org.opencontainers.image.title="fd" \
     org.opencontainers.image.description="fd in Docker" \
-    org.opencontainers.image.version="${FD_VERSION}" \
-    version="${FD_VERSION}"
+    org.opencontainers.image.source="${SOURCE}" \
+    org.opencontainers.image.revision="${REVISION}" \
+    org.opencontainers.image.created="${CREATED}" \
+    org.opencontainers.image.version="${VERSION}"
 
