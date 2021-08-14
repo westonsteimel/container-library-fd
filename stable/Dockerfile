@@ -1,16 +1,15 @@
-ARG SOURCE
-ARG REVISION
-ARG CREATED
+ARG VERSION="8.2.1"
+ARG REVISION="7e018c62d30185d11a8c9160a284128364f32dd2"
+
+FROM ghcr.io/westonsteimel/rust-static-builder:stable as builder
+
 ARG VERSION
-ARG GIT_REF="${VERSION}"
+ARG REVISION
 
-FROM westonsteimel/rust-static-builder:stable as builder
-
-ARG GIT_REF
-
-RUN git clone --depth 1 --branch "${GIT_REF}" https://github.com/sharkdp/fd /build/fd \
+RUN git clone --branch "v${VERSION}" https://github.com/sharkdp/fd /build/fd \
     && cd /build/fd \
-    && /home/builder/build.sh
+    && git reset --hard "${REVISION}" \
+    && NOCOMPRESS=1 /home/builder/build.sh
 
 FROM alpine:latest as config
 
@@ -19,25 +18,22 @@ RUN addgroup fd \
 
 FROM scratch
 
-ARG SOURCE
-ARG REVISION
-ARG CREATED
 ARG VERSION
+ARG REVISION
+ENV FD_VERSION="${VERSION}" \
+    FD_REVISION="${REVISION}" \
+    TERM="xterm-256color"
 
 COPY --from=config /etc/passwd /etc/passwd
-COPY --from=builder /build/fd/target/x86_64-unknown-linux-musl/release/fd /usr/local/bin/fd
+COPY --from=builder /build/artifacts/fd /usr/local/bin/fd
 
 USER fd
-
-ENV TERM xterm-256color
 
 ENTRYPOINT ["/usr/local/bin/fd"]
 CMD ["--help"]
 
 LABEL org.opencontainers.image.title="fd" \
     org.opencontainers.image.description="fd in Docker" \
-    org.opencontainers.image.source="${SOURCE}" \
     org.opencontainers.image.revision="${REVISION}" \
-    org.opencontainers.image.created="${CREATED}" \
     org.opencontainers.image.version="${VERSION}"
 
