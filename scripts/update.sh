@@ -12,8 +12,8 @@ sed -ri \
     -e 's/^(ARG REVISION=).*/\1'"\"${revision}\""'/' \
     "stable/Dockerfile"
 
-#git add stable/Dockerfile
-#git diff-index --quiet HEAD || git commit --message "updated stable to version ${version}, revision: ${revision}"
+git add stable/Dockerfile
+git diff-index --quiet HEAD || git commit --message "updated stable to version ${version}, revision: ${revision}"
 
 version="master"
 revision=`curl --silent "https://api.github.com/repos/sharkdp/fd/commits/${version}" | jq .sha | xargs`
@@ -24,5 +24,5 @@ sed -ri \
     -e 's/^(ARG REVISION=).*/\1'"\"${revision}\""'/' \
     "edge/Dockerfile"
 
-#git add edge/Dockerfile
-#git diff-index --quiet HEAD || git commit --message "updated edge to version ${version}, revision: ${revision}"
+git add edge/Dockerfile
+git diff-index --quiet HEAD || git commit --message "updated edge to version ${version}, revision: ${revision}"
