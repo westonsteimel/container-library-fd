@@ -1,5 +1,5 @@
 ARG VERSION="master"
-ARG REVISION="a248607beefac2137cbe068ef74898c46e0705dd"
+ARG REVISION="9ffd57f4eff28498557c1238d27c4aa83c5f7646"
 
 FROM ghcr.io/westonsteimel/rust-static-builder:stable as builder
 
